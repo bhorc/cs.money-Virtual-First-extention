@@ -1,0 +1,34 @@
+{
+    "manifest_version": 2,
+    "content_scripts": [{
+        "js": ["script.js"],
+        "css": ["all.css"],
+        "matches": [
+            "*://*.cs.money/*",
+            "*://*.herokuapp.com/*",
+            "*://csmoneypopularapi.herokuapp.com/*"
+        ],
+        "run_at": "document_idle"
+    }],
+    "permissions": [
+        "https://*/",
+        "*://*.cs.money/*",
+        "*://*.herokuapp.com/*",
+        "*://csmoneypopularapi.herokuapp.com/*",
+        "*://csmoneypopularapi.herokuapp.com/popular-skins",
+        "cookies",
+        "storage",
+        "identity"
+    ],
+    "background": {
+	    "scripts": ["socket.io.min.js","background.js","jquery.js"],
+		"persistent": false
+	},
+	"web_accessible_resources": [
+	    "price.json"
+	],
+    "description":  "cs.money helper",
+    "name":         "cs.money helper",
+    "short_name":   "cs.money helper",
+    "version":      "0.1.0"
+}

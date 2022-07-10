@@ -1,0 +1,258 @@
+#myModal .modal{
+    width: 780px;
+    height: 500px;
+    left: calc(50% - 780px / 2);
+    top: calc(50% - 500px / 2);
+    box-sizing: border-box;
+    overflow: hidden;
+    color: #fff;
+    background: #36363c;
+    border-radius: 4px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+}
+#myModal .modal-title{
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: 0;
+    padding: 30px 30px 0 30px;
+}
+#myModal .modal-body{
+    padding: 0 16px 30px;
+    margin-top: 6px;
+    overflow-y: hidden;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 30px 30px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+#myModal .modal-container{
+    position: relative;
+    box-sizing: border-box;
+    height: 100%;
+    margin-top: 12px;
+    margin-bottom: 26px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+#myModal .styles_container__3SsSr{
+    gap: 12px;
+    padding: 10px 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+#myModal .styles_actions__3uEFS{
+    margin: 0;
+}
+#myModal .styles_icon_wrapper__1fs1B,
+#myModal .styles_title__13qTi,
+#myModal .timer{
+    margin-right: 20px;
+}
+
+#myModal .items_wrapper{
+    max-width: 180px;
+    margin: 0 auto;
+}
+#myModal .timer{
+    width: 80px;
+}
+#myModal .styles_container__3SsSr{
+    justify-content: center;
+}
+#myModal .modal-offer{
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    min-height: 80px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    background: #44444b;
+    justify-content: left;
+    border-radius: 4px;
+    padding: 0 20px;
+}
+#show-virtual-first-modal{
+    background: transparent;
+    border: none;
+    color: #fff;
+    margin-top: -8px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    font-size: 12px;
+}
+#show-virtual-first-modal:hover{
+    text-decoration: underline;
+}
+
+[class^="Auction_wrapper"] [class^="AuctionListing_lot"], 
+[class^="Auction_wrapper"] [class^="AuctionMobile_lot"]:not([class^="AuctionMobile_lots"]){
+	width: calc(100% / 3) !important;
+	margin: 0 !important;
+}
+[class^="Auction_wrapper"] [class^="LotCardDesktop_auction-card"],
+[class^="Auction_wrapper"] [class^="LotCardMobile_auction-card"]{
+	display: block !important;
+	padding: 20px 12px 37px 12px !important;
+}
+[class^="Auction_wrapper"] [class^="LotCardMobile_lot-info"]{
+	display: block !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_wrapper"]{
+	position: relative !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_wrapper"],
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_wrapper"] div{
+	width: 100% !important;
+	flex-wrap: wrap !important;
+	margin: 0 !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_image"]{
+	width: 100% !important;
+	position: static !important;
+	transform: none !important;
+	margin-bottom: -30px !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_left"]{
+	height: auto !important;
+	position: static !important;
+}
+[class^="Auction_wrapper"] [class^="List_wrapper"] .list{
+	display: flex !important;
+    flex-wrap: wrap !important;
+}
+[class^="CSGOSkinInfo_description_"] + div > [class^="price_price__"]{
+	margin-top: 50px !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_description"] {
+	position: absolute !important;
+	top: 0px !important;
+	width: auto !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_description"] > span {
+	font-size: 1em !important;
+	line-height: 1em !important;
+}
+[class^="Auction_wrapper"] [class^="CSGOSkinInfo_tradelock"] {
+	position: absolute !important;
+	left: auto !important;
+	right: 12px !important;
+	top: 0px !important;
+	font-size: 1em !important;
+	line-height: 1em !important;
+	text-align: right !important;
+	width: auto !important;
+}
+[class^="Auction_wrapper"] [class^="price_price"]{
+	justify-content: center !important;
+	margin-bottom: 1em !important;
+	margin-top: 50px !important;
+}
+[class^="Auction_wrapper"] [class^="price_price"] > span{
+	font-size: 1.5em !important;
+    line-height: 1em !important;
+    padding: 0.2em 0.5em !important;
+    border-radius: 1em !important;
+    border: 2px solid #fff !important;
+    text-align: center !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+[class^="Auction_wrapper"] [class^="price_icon"]{
+	display: none !important;
+}
+[class^="Auction_wrapper"] [class^="price_price"] > [class^="price_icon"] + span{
+	border-color: #786CC1 !important;
+	color: #786CC1 !important;
+}
+[class^="Auction_wrapper"] [class^="sticker_stickers"]{
+	justify-content: center !important;
+}
+[class^="Auction_wrapper"] [class^="sticker_stickers"] img {
+	--sticker-size: 50px !important;
+}
+[class^="Auction_wrapper"] [class^="LotInfoDesktop_bid-info"],
+[class^="Auction_wrapper"] [class^="LotInfoMobile_bid-info"]{
+    width: auto !important;
+    min-width: auto !important;
+}
+[class^="Auction_wrapper"] [class^="LotCardDesktop_action"],
+[class^="Auction_wrapper"] [class^="LotCardMobile_action"]{
+    margin: 10px 0 !important;
+}
+
+[class^="Auction_wrapper"] [class^="LotCardDesktop_timer"]{
+    bottom: 5px !important;
+}
+[class^="Auction_wrapper"] [class^="LotCardMobile_timer"]{
+	bottom: -220px !important;
+}
+[class^="Auction_wrapper"] [class^="LotCardDesktop_timer"],
+[class^="Auction_wrapper"] [class^="LotCardMobile_timer"]{
+    position: absolute !important;
+    top: auto !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    background: #423E43 !important;
+    border-radius: 30px !important;
+    padding: 5px 10px !important;
+}
+[class^="Auction_wrapper"] [class^="BidConfirmation_label"],
+[class^="Auction_wrapper"] [class^="LotCardMobile_arrow-icon"]{
+	display: none !important;
+}
+[class^="Auction_wrapper"] [class^="Auction_listing"]:nth-child(1) [class^="CSGOSkinInfo_tradelock"]{
+	top: 25px !important;
+}
+[class^="Auction_wrapper"] [class^="List_wrapper"] .list{
+	padding-bottom: 100px !important;
+}
+.active_rate{
+	background-color: var(--color-graybase-300) !important;
+	border-radius: 0px !important;
+}
+[data-state]{
+    text-shadow: 1px 1px 2px black;
+}
+[data-state="red"]{ color: red !important; }
+[data-state="orange"]{ color: orange !important; }
+[data-state="purple"]{ color: #e31ae3 !important; }
+[data-state="green"]{ color: #00d700 !important; }
+.Timer_time_wrapper__175t5 span{
+	font-size: 18px !important;
+	white-space: nowrap !important;
+}
+/* hide footer */
+[class^="TradePage_wrapper_"] > [class^="MediaQueries_desktop"]:last-child,
+[class^="Auction_wrapper"] + div,
+[class^="TradePage_wrapper"] + div {
+    display: none !important;
+}
+[class^="styles_content__"] {
+	min-height: auto !important;
+}
+[class^="styles_item_container__"] {
+	padding: 0 20px 5px 20px !important;
+}
+.LotCardMobile_wrapper__mEnEG{
+	padding-bottom: 30px !important;
+}
+.disabledSkins{
+    border: 2px solid red;
+    box-sizing: border-box;
+}
+.AuctionListing_lot__1F1tl.popularSkins .price_currency__1RmBq{
+    color: #fff;
+    background-color: rgb(17 17 17) !important;
+    border-color: red !important;
+}
+.popularSkins .actioncard_card__19Ydi{
+    background-color: rgb(17 17 17) !important;
+}
