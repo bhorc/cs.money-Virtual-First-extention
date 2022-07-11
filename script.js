@@ -856,46 +856,39 @@ window.addEventListener('message', function(e) {
                     case 'add_cart':
                     case 'remove_cart_item':
                     case 'clear_cart':
-                        let whose_cart = type === 1 ? 'user' : 'bot';
-                        let inventory_cart = whose_cart + 'OfferInventory';
-                        let method_cart = requestKey.split('_')[0];
-                        let item = id || postParams.item;
-                        let html_items_cart = [...document.querySelectorAll(`[class*="${whose_cart}-listing_cart_"] [class^="List_list__"] > div`)];
-
+                        const whose_cart = type === 1 ? 'user' : 'bot';
+                        const inventory_cart = whose_cart + 'OfferInventory';
+                        const method_cart = requestKey.split('_')[0];
+                        const item = id || postParams.item;
+                        const html_items_cart = [...document.querySelectorAll(`[class*="${whose_cart}-listing_cart_"] [class^="List_list__"] > div`)];
                         extension[inventory_cart][method_cart](item);
                         extension[inventory_cart].assignmentItems(html_items_cart);
                         window.dispatchEvent(offerInventoryEvent);
                         break;
                     case 'my-lots':
-                        let html_items_user_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(1) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
+                        const html_items_user_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(1) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
                         extension.userLotsInventory.set(responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_user_lots);
                         break;
                     case 'lots':
-                        if (createdFrom) {
-                            extension.botLotsInventory.add(responseJson);
-                        } else {
-                            extension.botLotsInventory.set(responseJson);
-                        }
-                        let html_items_bot_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(2) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
+                        const method_lots = createdFrom ? 'add' : 'set';
+                        const html_items_bot_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(2) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
+                        extension.botLotsInventory[method_lots](responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_bot_lots);
                         extension.botLotsInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
                         break;
                     case '730':
-                        let method_730 = offset === 0 ? 'set' : 'update';
-                        if (extension.currentPage.currentUrl === 'https://cs.money/csgo/trade/') {
-                            let whose_730 = url.pathname.includes('load_bots_inventory') ? 'bot' : 'user';
-                            let inventory_730 = whose_730 + 'Inventory';
-                            let html_items_730 = [...document.querySelectorAll(`[class*="${whose_730}-listing_body"] [class^="list_list_"] > div`)];
-                            extension[inventory_730][method_730](items);
-                            extension[inventory_730].assignmentItems(html_items_730);
-                            extension[inventory_730].highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
-                        } else {
-                            let html_items_730 = [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)];
-                            extension.userSellInventory[method_730](items);
-                            extension.userSellInventory.assignmentItems(html_items_730);
-                            extension.userSellInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
+                        const loadInventory = {
+                            "load_bots_inventory": { inventoryName: 'botInventory', inventoryItems: [...document.querySelectorAll(`[class*="botInventory-listing_body"] [class^="List_list__"] > div`)] },
+                            "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[class*="userInventory-listing_body"] [class^="List_list__"] > div`)] },
+                            "load_sell_inventory": { inventoryName: 'userSellInventory', inventoryItems: [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)] },
                         }
+                        const method = offset === 0 ? 'set' : 'update';
+                        const inventoryType = url.pathname.split('/').at(-2);
+                        const { inventoryName, inventoryItems } = loadInventory[inventoryType];
+                        extension[inventoryName][method](items);
+                        extension[inventoryName].assignmentItems(inventoryItems);
+                        extension[inventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
                         break;
                     default:
                         break;
