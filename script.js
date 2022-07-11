@@ -281,15 +281,19 @@ window.addEventListener('message', function(e) {
                 this.contextMenu = { init: false, selectedItem: null };
                 this.lastStatus = null;
                 this.cookies = null;
+                this.mediaQueries = {
+                    isMobile: false,
+                    isDesktop: false,
+                };
                 this.currentPage = {
                     currentUrl: window.location.origin + window.location.pathname,
                     previousUrl: null
                 }
-                this.init();
             }
             async init(){
                 console.log('New cs.money extension Inited!');
                 const { props: { initialReduxState: { g_userInfo } } } = await this.loadNextData();
+                this.userInfo = g_userInfo;
                 this.popularSkins = await this.backgroundRequest('getPopularSkins');
                 this.hiddenSkins = await this.backgroundRequest('getHiddenSkins');
                 this.limitedSkins = await this.backgroundRequest('getLimitedSkins');
@@ -297,7 +301,6 @@ window.addEventListener('message', function(e) {
                 this.cookies = await this.backgroundRequest('getCookies', { domain: "old.cs.money" });
                 this.pendingOffersInventory.get();
                 this.setCurrentPage();
-                this.setUserInfo(g_userInfo);
             }
             async loadNextData(){
                 let nextData = window.__NEXT_DATA__;
@@ -327,6 +330,7 @@ window.addEventListener('message', function(e) {
                     this.userSellInventory.loaded = false;
                 }
                 this.currentPage.currentUrl = window.location.origin + window.location.pathname;
+                this.setMediaQueries();
                 this.initPage();
                 this.initContextMenu();
             }
@@ -340,10 +344,11 @@ window.addEventListener('message', function(e) {
 
                         if (!this.botInventory.get().length || !this.userInventory.get().length) {
                             const { query, props: { initialReduxState: { g_userInfo } } } = await this.loadNextData();
+                            this.userInfo = g_userInfo;
                             const onLoadOptions = Object.assign(structuredClone(query), {
                                 limit: 60,
                                 offset: 0,
-                                priceWithBonus: g_userInfo.buyBonus,
+                                priceWithBonus: this.userInfo.buyBonus,
                                 withStack: true,
                             });
                             if (query.search) { onLoadOptions.name = query.search }
@@ -393,6 +398,11 @@ window.addEventListener('message', function(e) {
                         break;
                 }
             }
+            setMediaQueries(){
+                let desktop = !!document.querySelector('[class^="MediaQueries_desktop"]').childElementCount;
+                let mobile = !!document.querySelector('[class^="MediaQueries_mobile"]').childElementCount;
+                this.mediaQueries = { desktop, mobile };
+            }
             buildBetterAuctionTimers(state){
                 const EventAuctionTimers = () => {
                     let lots = document.querySelectorAll('[class^="AuctionListing_lot_"]:not(.active_rate), [class^="AuctionMobile_lot_"]:not(.active_rate)');
@@ -434,7 +444,7 @@ window.addEventListener('message', function(e) {
                 }
             }
             buildButtons(){
-                if (!document.querySelector('#show-virtual-first-modal')) {
+                if (!document.querySelector('#show-virtual-first-modal') && this.mediaQueries.isDesktop) {
                     document.querySelector('[class^="TradePage_center"]').insertAdjacentHTML('afterbegin', `
                         <button class="TradePage_trade_button__3AwF8 styles_button__303YR styles_main__PiMGk TradeButton_button__1Dt47 styles_disabled__FKMBn TradeButton_disabled__2nLaR" disabled="" type="button" id="trade-virtual-first">
                             <span>Virtual First</span>
@@ -673,17 +683,19 @@ window.addEventListener('message', function(e) {
                 document.querySelector('#myModal .modal-container').innerHTML = html;
             }
             async checkOfferInventoryOpen() {
-                const offerHeader = document.querySelector('[class^="TradeCart_header"]');
-                if (!offerHeader.parentNode.className.includes('TradeCart_open')) {
-                    this.isOfferInventoryOpen = await new Promise(resolve => setTimeout(() => {
-                        if (offerHeader.nextSibling) {
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    }, 100));
-                } else {
-                    this.isOfferInventoryOpen = false;
+                if (this.mediaQueries.isDesktop) {
+                    const offerHeader = document.querySelector('[class^="TradeCart_header"]');
+                    if (!offerHeader.parentNode.className.includes('TradeCart_open')) {
+                        this.isOfferInventoryOpen = await new Promise(resolve => setTimeout(() => {
+                            if (offerHeader.nextSibling) {
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        }, 100));
+                    } else {
+                        this.isOfferInventoryOpen = false;
+                    }
                 }
             }
             updateOfferInventory(){
@@ -817,9 +829,6 @@ window.addEventListener('message', function(e) {
                 //     </div>
                 // </section>
             }
-            setUserInfo(userInfo) {
-                this.userInfo = userInfo;
-            }
             async backgroundRequest(target, options = []) {
                 window.postMessage({ target, options, csMoneyHelperExtensionID: localStorage.csMoneyHelperExtensionID }, '*');
                 let res = await new Promise((resolve) => {
@@ -909,6 +918,7 @@ window.addEventListener('message', function(e) {
             }
         }
         const extension = new Extension();
+        await extension.init();
 
         XMLHttpRequest.prototype.originalSend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.send = function(value) {
@@ -936,15 +946,25 @@ window.addEventListener('message', function(e) {
                         window.dispatchEvent(offerInventoryEvent);
                         break;
                     case 'my-lots':
-                        const html_items_user_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        let html_items_user_lots;
+                        if (extension.mediaQueries.isDesktop) {
+                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        } else {
+                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="MediaQueries_desktop"] [class^="styles_tab"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        }
                         extension.userLotsInventory.set(responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_user_lots);
                         break;
                     case 'lots':
+                        let html_items_lots;
+                        if (extension.mediaQueries.isDesktop) {
+                            html_items_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        } else {
+                            html_items_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="styles_tab"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        }
                         const method_lots = createdFrom ? 'add' : 'set';
-                        const html_items_bot_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
                         extension.botLotsInventory[method_lots](responseJson);
-                        extension.botLotsInventory.assignmentItems(html_items_bot_lots);
+                        extension.botLotsInventory.assignmentItems(html_items_lots);
                         extension.botLotsInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
                         break;
                     case '730':
