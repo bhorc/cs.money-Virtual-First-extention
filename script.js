@@ -123,6 +123,7 @@ window.addEventListener('message', function(e) {
                 this.inventory = [];
                 this.history = {};
                 this.loaded = false;
+                this.contextItem = null;
             }
             add(items){
                 this.inventory = [...new Set([...this.inventory, ...items])];
@@ -199,15 +200,16 @@ window.addEventListener('message', function(e) {
                 }
             }
             assignmentItems(html_items) {
-                console.log(html_items);
                 try {
                     for (let [index, html_item] of Object.entries(html_items)) {
                         this.inventory[index].element = html_item;
+                        this.inventory[index].element.addEventListener('contextmenu', async (e) => {
+                            this.contextItem = this.inventory[index];
+                        });
                     }
                 } catch (error) {
                     console.log(html_items);
                 }
-
             }
         }
         class pendingInventory extends customInventory {
@@ -276,6 +278,7 @@ window.addEventListener('message', function(e) {
                 this.skinsBaseList = [];
                 this.isModalVisible = false;
                 this.isOfferInventoryOpen = false;
+                this.contextMenu = { init: false, selectedItem: null };
                 this.lastStatus = null;
                 this.cookies = null;
                 this.currentPage = {
@@ -325,6 +328,7 @@ window.addEventListener('message', function(e) {
                 }
                 this.currentPage.currentUrl = window.location.origin + window.location.pathname;
                 this.initPage();
+                this.initContextMenu();
             }
             async initPage(){
                 switch (this.currentPage.currentUrl) {
@@ -744,6 +748,75 @@ window.addEventListener('message', function(e) {
                     }, false);
                 });
             }
+            initContextMenu(){
+                if (!this.contextMenu.init) {
+                    this.contextMenu.init = true;
+                    let contextMenu = document.querySelector('#portal');
+                    let observer = new MutationObserver((mutationsList) => {
+                        for(let mutation of mutationsList) {
+                            if (mutation.type === 'childList') {
+                                if (contextMenu.querySelector('[class^="Popper_safe_zone"]')) {
+                                    this.contextMenu.selectedItem = this.getContextItem();
+                                    console.log(this.contextMenu);
+                                    this.improveContextMenu();
+                                } else {
+                                    this.botInventory.contextItem = null;
+                                    this.userInventory.contextItem = null;
+                                    this.botLotsInventory.contextItem = null;
+                                    this.userLotsInventory.contextItem = null;
+                                    this.userSellInventory.contextItem = null;
+                                }
+                            }
+                        }
+                    });
+                    observer.observe(contextMenu, { attributes: false, childList: true });
+                }
+            }
+            getContextItem(){
+                return this.botInventory.contextItem || this.userInventory.contextItem || this.botLotsInventory.contextItem || this.userLotsInventory.contextItem || this.userSellInventory.contextItem;
+            }
+            improveContextMenu() {
+                const contextMenu = document.querySelector('#portal [class^="Popper_safe_zone"] [class^="LinksSection_links_section"]');
+                contextMenu.insertAdjacentHTML('afterEnd', `
+                    <section class="LinksSection_links_section__3zrV3">
+                        <div class="csm_ui__wrapper__67dba">
+                            <a href="https://old.cs.money/market_sales?appid=730&name_id=${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
+                                <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (old)</span>
+                                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
+                                    <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
+                                    <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="csm_ui__wrapper__67dba">
+                            <a href="https://csm.auction/sales${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
+                                <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (new)</span>
+                                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
+                                    <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
+                                    <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </section>`);
+
+                // <section class="PropertiesSection_properties_section__bkXG7 PropertiesSection_with_marging__3xGj4">
+                //     <div class="SkinProperty_skin_property__1uxJR">
+                //         <span class="csm_ui__text__6542e csm_ui__body_14_regular__6542e Text_gray__3sMSI">sales Info</span>
+                //         <span class="csm_ui__text__6542e csm_ui__body_14_regular__6542e Text_white__1iLl1">Link</span>
+                //     </div>
+                // </section>
+                // <section class="LinksSection_links_section__3zrV3">
+                //     <div class="csm_ui__wrapper__67dba">
+                //         <a rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
+                //             <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">screenshot</span>
+                //             <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
+                //                 <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
+                //                 <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
+                //             </svg>
+                //         </a>
+                //     </div>
+                // </section>
+            }
             setUserInfo(userInfo) {
                 this.userInfo = userInfo;
             }
@@ -863,13 +936,13 @@ window.addEventListener('message', function(e) {
                         window.dispatchEvent(offerInventoryEvent);
                         break;
                     case 'my-lots':
-                        const html_items_user_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(1) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
+                        const html_items_user_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
                         extension.userLotsInventory.set(responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_user_lots);
                         break;
                     case 'lots':
                         const method_lots = createdFrom ? 'add' : 'set';
-                        const html_items_bot_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(2) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
+                        const html_items_bot_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
                         extension.botLotsInventory[method_lots](responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_bot_lots);
                         extension.botLotsInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
