@@ -950,7 +950,7 @@ window.addEventListener('message', function(e) {
                         if (extension.mediaQueries.isDesktop) {
                             html_items_user_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
                         } else {
-                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="MediaQueries_desktop"] [class^="styles_tab"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="styles_tab"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
                         }
                         extension.userLotsInventory.set(responseJson);
                         extension.botLotsInventory.assignmentItems(html_items_user_lots);
