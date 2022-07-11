@@ -103,6 +103,7 @@ window.addEventListener('message', function(e) {
                         }
                         break;
                     case 'popularSkins':
+                    case 'limitedSkins':
                         for (let index in this.inventory) {
                             if (options[type].includes(this.inventory[index].fullName)) {
                                 this.inventory[index][type] = true;
@@ -190,6 +191,7 @@ window.addEventListener('message', function(e) {
             highlight(type, options){
                 for (let item of this.inventory) {
                     try {
+                        item.fullName = item.fullName || options.skinsBaseList[item.nameId].m;
                         if (options[type].includes(item.fullName)) {
                             item[type] = true;
                             if (item.element) {
@@ -267,11 +269,15 @@ window.addEventListener('message', function(e) {
                 this.userInventory = new customInventory();
                 this.botLotsInventory = new customInventory();
                 this.userLotsInventory = new customInventory();
+                this.userSellInventory = new customInventory();
                 this.pendingOffersInventory = new pendingInventory();
                 this.requestMap = new Map();
                 this.userInfo = {};
                 this.pendingTransactions = [];
                 this.popularSkins = [];
+                this.hiddenSkins = [];
+                this.limitedSkinsData = [];
+                this.skinsBaseList = [];
                 this.isModalVisible = false;
                 this.isOfferInventoryOpen = false;
                 this.lastStatus = null;
@@ -284,9 +290,12 @@ window.addEventListener('message', function(e) {
             async init(){
                 console.log('New cs.money extension Inited!');
                 const { props: { initialReduxState: { g_userInfo } } } = await this.loadNextData();
-                this.pendingOffersInventory.get();
-                this.cookies = await this.backgroundRequest('getCookies', { domain: "old.cs.money" });
                 this.popularSkins = await this.backgroundRequest('getPopularSkins');
+                this.hiddenSkins = await this.backgroundRequest('getHiddenSkins');
+                this.limitedSkins = await this.backgroundRequest('getLimitedSkins');
+                this.skinsBaseList = await this.backgroundRequest('getSkinsBaseList');
+                this.cookies = await this.backgroundRequest('getCookies', { domain: "old.cs.money" });
+                this.pendingOffersInventory.get();
                 this.setCurrentPage();
                 this.setUserInfo(g_userInfo);
             }
@@ -362,6 +371,19 @@ window.addEventListener('message', function(e) {
                         }
                         if (!this.userLotsInventory.get().length && !this.userLotsInventory.loaded) {
                             this.userLotsInventory.loaded = this.userLotsInventory.load('https://cs.money/1.0/auction/my-lots?' + new URLSearchParams(auctionOptions).toString());
+                        }
+                        break;
+                    case "https://cs.money/csgo/sell/":
+                        this.buildBetterAuctionTimers(false);
+                        const sellPageOptions = {
+                            limit: 60,
+                            offset: 0,
+                            order: "desc",
+                            inventoryType: "allSkins",
+                            sort: "priceAndUnsellable",
+                        }
+                        if (!this.userSellInventory.get().length && !this.userSellInventory.loaded) {
+                            this.userSellInventory.loaded = this.userSellInventory.load('https://cs.money/2.0/load_sell_inventory/730?' + new URLSearchParams(sellPageOptions).toString());
                         }
                         break;
                     default:
@@ -857,17 +879,23 @@ window.addEventListener('message', function(e) {
                         }
                         let html_items_bot_lots = [...document.querySelectorAll(`.Auction_listing__ehGey:nth-child(2) [class*="AuctionListing_wrapper__"] [class^="List_wrapper__"] > .list > div`)];
                         extension.botLotsInventory.assignmentItems(html_items_bot_lots);
-                        extension.botLotsInventory.highlight('popularSkins', { popularSkins: extension.popularSkins });
+                        extension.botLotsInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
                         break;
                     case '730':
-                        let whose_730 = url.pathname.includes('load_bots_inventory') ? 'bot' : 'user';
-                        let inventory_730 = whose_730 + 'Inventory';
                         let method_730 = offset === 0 ? 'set' : 'update';
-                        let html_items_730 = [...document.querySelectorAll(`[class*="${whose_730}-listing_body"] [class^="list_list_"] > div`)];
-
-                        extension[inventory_730][method_730](items);
-                        extension[inventory_730].assignmentItems(html_items_730);
-                        extension[inventory_730].highlight('popularSkins', { popularSkins: extension.popularSkins });
+                        if (extension.currentPage.currentUrl === 'https://cs.money/csgo/trade/') {
+                            let whose_730 = url.pathname.includes('load_bots_inventory') ? 'bot' : 'user';
+                            let inventory_730 = whose_730 + 'Inventory';
+                            let html_items_730 = [...document.querySelectorAll(`[class*="${whose_730}-listing_body"] [class^="list_list_"] > div`)];
+                            extension[inventory_730][method_730](items);
+                            extension[inventory_730].assignmentItems(html_items_730);
+                            extension[inventory_730].highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
+                        } else {
+                            let html_items_730 = [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)];
+                            extension.userSellInventory[method_730](items);
+                            extension.userSellInventory.assignmentItems(html_items_730);
+                            extension.userSellInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
+                        }
                         break;
                     default:
                         break;
