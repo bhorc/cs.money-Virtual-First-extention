@@ -39,16 +39,11 @@ window.addEventListener('message', function(e) {
             return Symbol.iterator in Object(value);
         }
         function getTimeRemaining(endTime) {
-            let t = Date.parse(endTime) - new Date().getTime();
-            let seconds = Math.floor((t / 1000) % 60);
-            let minutes = Math.floor((t / 1000 / 60) % 60);
-            let hours = Math.floor((t / (1000 * 60 * 60)) % 24);
-            return {
-                'total': t,
-                'hours': hours,
-                'minutes': minutes,
-                'seconds': seconds
-            };
+            let total = Date.parse(endTime) - new Date().getTime();
+            let seconds = Math.floor((total / 1000) % 60);
+            let minutes = Math.floor((total / 1000 / 60) % 60);
+            let hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            return { total, hours, minutes, seconds }
         }
         function initializeClock(selector, callback) {
             let clock = document.querySelector(selector);
@@ -204,6 +199,7 @@ window.addEventListener('message', function(e) {
                 }
             }
             assignmentItems(html_items) {
+                console.log(html_items);
                 try {
                     for (let [index, html_item] of Object.entries(html_items)) {
                         this.inventory[index].element = html_item;
@@ -286,6 +282,7 @@ window.addEventListener('message', function(e) {
                     currentUrl: window.location.origin + window.location.pathname,
                     previousUrl: null
                 }
+                this.init();
             }
             async init(){
                 console.log('New cs.money extension Inited!');
@@ -324,6 +321,7 @@ window.addEventListener('message', function(e) {
                     this.userInventory.loaded = false;
                     this.botLotsInventory.loaded = false;
                     this.userLotsInventory.loaded = false;
+                    this.userSellInventory.loaded = false;
                 }
                 this.currentPage.currentUrl = window.location.origin + window.location.pathname;
                 this.initPage();
@@ -838,7 +836,6 @@ window.addEventListener('message', function(e) {
             }
         }
         const extension = new Extension();
-        extension.init();
 
         XMLHttpRequest.prototype.originalSend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.send = function(value) {
@@ -879,8 +876,8 @@ window.addEventListener('message', function(e) {
                         break;
                     case '730':
                         const loadInventory = {
-                            "load_bots_inventory": { inventoryName: 'botInventory', inventoryItems: [...document.querySelectorAll(`[class*="botInventory-listing_body"] [class^="List_list__"] > div`)] },
-                            "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[class*="userInventory-listing_body"] [class^="List_list__"] > div`)] },
+                            "load_bots_inventory": { inventoryName: 'botInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="bot-listing"] [class*="list_large"] > div`)] },
+                            "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="user-listing"] [class*="list_large"] > div`)] },
                             "load_sell_inventory": { inventoryName: 'userSellInventory', inventoryItems: [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)] },
                         }
                         const method = offset === 0 ? 'set' : 'update';
