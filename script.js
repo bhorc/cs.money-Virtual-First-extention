@@ -946,26 +946,17 @@ window.addEventListener('message', function(e) {
                         window.dispatchEvent(offerInventoryEvent);
                         break;
                     case 'my-lots':
-                        let html_items_user_lots;
-                        if (extension.mediaQueries.isDesktop) {
-                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
-                        } else {
-                            html_items_user_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="styles_tab"]')[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
-                        }
-                        extension.userLotsInventory.set(responseJson);
-                        extension.botLotsInventory.assignmentItems(html_items_user_lots);
-                        break;
                     case 'lots':
-                        let html_items_lots;
-                        if (extension.mediaQueries.isDesktop) {
-                            html_items_lots = [...document.querySelectorAll('[class^="Auction_listing"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
-                        } else {
-                            html_items_lots = [...document.querySelectorAll('[class^="Auction_wrapper"] [class^="styles_tab"]')[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)];
+                        const inventory = extension.mediaQueries.isDesktop ? document.querySelectorAll('[class^="Auction_listing"]') : document.querySelectorAll('[class^="Auction_wrapper"] [class^="styles_tab"]');
+                        const lotsInventory = {
+                            "my-lots": { lotsInventoryName: 'userLotsInventory', lotsInventoryItems: [...inventory[0].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)] },
+                            "lots": { lotsInventoryName: 'botLotsInventory', lotsInventoryItems: [...inventory[1].querySelectorAll(`[class^="List_wrapper__"] > .list > div`)] },
                         }
                         const method_lots = createdFrom ? 'add' : 'set';
-                        extension.botLotsInventory[method_lots](responseJson);
-                        extension.botLotsInventory.assignmentItems(html_items_lots);
-                        extension.botLotsInventory.highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
+                        const { lotsInventoryName, lotsInventoryItems } = lotsInventory[requestKey];
+                        extension[lotsInventoryName][method_lots](responseJson);
+                        extension[lotsInventoryName].assignmentItems(lotsInventoryItems);
+                        extension[lotsInventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
                         break;
                     case '730':
                         const loadInventory = {
