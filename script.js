@@ -208,7 +208,7 @@ window.addEventListener('message', function(e) {
                         });
                     }
                 } catch (error) {
-                    console.log(html_items);
+                    console.log(html_items, this.inventory);
                 }
             }
         }
@@ -289,6 +289,7 @@ window.addEventListener('message', function(e) {
                     currentUrl: window.location.origin + window.location.pathname,
                     previousUrl: null
                 }
+                this.init();
             }
             async init(){
                 console.log('New cs.money extension Inited!');
@@ -333,6 +334,7 @@ window.addEventListener('message', function(e) {
                 this.setMediaQueries();
                 this.initPage();
                 this.initContextMenu();
+                console.log(this);
             }
             async initPage(){
                 switch (this.currentPage.currentUrl) {
@@ -399,9 +401,9 @@ window.addEventListener('message', function(e) {
                 }
             }
             setMediaQueries(){
-                let desktop = !!document.querySelector('[class^="MediaQueries_desktop"]').childElementCount;
-                let mobile = !!document.querySelector('[class^="MediaQueries_mobile"]').childElementCount;
-                this.mediaQueries = { desktop, mobile };
+                let isDesktop = !!document.querySelector('[class^="MediaQueries_desktop"]').childElementCount;
+                let isMobile = !!document.querySelector('[class^="MediaQueries_mobile"]').childElementCount;
+                this.mediaQueries = { isDesktop, isMobile };
             }
             buildBetterAuctionTimers(state){
                 const EventAuctionTimers = () => {
@@ -918,7 +920,6 @@ window.addEventListener('message', function(e) {
             }
         }
         const extension = new Extension();
-        await extension.init();
 
         XMLHttpRequest.prototype.originalSend = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.send = function(value) {

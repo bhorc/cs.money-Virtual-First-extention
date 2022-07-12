@@ -248,15 +248,15 @@
     border: 2px solid red;
     box-sizing: border-box;
 }
-.AuctionListing_lot__1F1tl.limitedSkins .price_currency__1RmBq,
-.AuctionListing_lot__1F1tl.popularSkins .price_currency__1RmBq{
+[class*="_lot__"].limitedSkins [class*="price_currency"],
+[class*="_lot__"].popularSkins [class*="price_currency"]{
     color: #fff;
     background-color: rgb(17 17 17) !important;
     border-color: red !important;
 }
-.styles_sell_page__30By9 .limitedSkins .styles_background__1mT_9,
-.styles_sell_page__30By9 .limitedSkins .styles_sale_back__w-YED,
-.limitedSkins .actioncard_card__19Ydi,
-.popularSkins .actioncard_card__19Ydi{
+[class^="styles_sell_page"] .limitedSkins [class^="styles_background"],
+[class^="styles_sell_page"] .limitedSkins [class^="styles_sale_back"],
+.limitedSkins [class^="actioncard_card_"],
+.popularSkins [class^="actioncard_card_"]{
     background-color: rgb(17 17 17) !important;
 }
