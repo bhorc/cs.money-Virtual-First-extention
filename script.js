@@ -126,11 +126,36 @@ window.addEventListener('message', function(e) {
                 this.contextItem = null;
             }
             add(items){
+                this.loaded = true;
                 this.inventory = [...new Set([...this.inventory, ...items])];
+            }
+            unshift(items){
+                this.loaded = true;
+                this.inventory = [...new Set([...items, ...this.inventory])];
+            }
+            upgrade(items){
+                if (!this.inventory){
+                    this.set(items);
+                } else {
+                    this.add(items);
+                }
             }
             set(data){
                 this.loaded = true;
                 this.inventory = data;
+            }
+            setWithOffset(items, offset){
+                if (!this.get().length) {
+                    this.set(items);
+                } else {
+                    for (let [index, item] of Object.entries(items)) {
+                        this.inventory[Number(index) + Number(offset)] = item;
+                    }
+                }
+            }
+            clear(){
+                this.loaded = false;
+                this.inventory = [];
             }
             get(){
                 return this.inventory;
@@ -177,20 +202,13 @@ window.addEventListener('message', function(e) {
                 }
                 return true;
             }
-            update(data) {
-                if (!this.inventory) {
-                    this.set(data);
-                } else{
-                    this.add(data);
-                }
-            }
             highlight(type, options){
                 for (let item of this.inventory) {
                     try {
-                        item.fullName = item.fullName || options.skinsBaseList[item.nameId].m;
-                        if (options[type].includes(item.fullName)) {
-                            item[type] = true;
-                            if (item.element) {
+                        if (item.element) {
+                            item.fullName = item.fullName || options.skinsBaseList[item.nameId].m;
+                            if (options[type].includes(item.fullName)) {
+                                item[type] = true;
                                 item.element.classList.add(type);
                             }
                         }
@@ -200,15 +218,33 @@ window.addEventListener('message', function(e) {
                 }
             }
             assignmentItems(html_items) {
-                try {
-                    for (let [index, html_item] of Object.entries(html_items)) {
-                        this.inventory[index].element = html_item;
-                        this.inventory[index].element.addEventListener('contextmenu', async (e) => {
-                            this.contextItem = this.inventory[index];
-                        });
+                if (html_items.length === this.inventory.length) {
+                    try {
+                        for (let [index, html_item] of Object.entries(html_items)) {
+                            this.inventory[index].element = html_item;
+                            this.inventory[index].element.addEventListener('contextmenu', async (e) => {
+                                this.contextItem = this.inventory[index];
+                            });
+                        }
+                    } catch (error) {
+                        console.log(html_items, this.inventory);
                     }
-                } catch (error) {
-                    console.log(html_items, this.inventory);
+                }
+            }
+        }
+        class sellInventory extends customInventory {
+            constructor() {
+                super();
+                this.pageOffset = 0;
+            }
+            assignmentItems(html_items, { limit, offset }) {
+                let to = offset + limit - this.pageOffset > 0 ? offset + limit : offset + limit * 2;
+                let from = to - html_items.length;
+                console.log(from, to, offset + limit - this.pageOffset);
+                this.pageOffset = offset;
+                for (let index = 0; index < html_items.length; index++) {
+                    let key = index + from;
+                    this.inventory[key].element = html_items[index];
                 }
             }
         }
@@ -267,7 +303,7 @@ window.addEventListener('message', function(e) {
                 this.userInventory = new customInventory();
                 this.botLotsInventory = new customInventory();
                 this.userLotsInventory = new customInventory();
-                this.userSellInventory = new customInventory();
+                this.userSellInventory = new sellInventory();
                 this.pendingOffersInventory = new pendingInventory();
                 this.requestMap = new Map();
                 this.userInfo = {};
@@ -324,11 +360,6 @@ window.addEventListener('message', function(e) {
             async setCurrentPage(){
                 if (this.currentPage.currentUrl !== window.location.origin + window.location.pathname) {
                     this.currentPage.previousUrl = this.currentPage.currentUrl;
-                    this.botInventory.loaded = false;
-                    this.userInventory.loaded = false;
-                    this.botLotsInventory.loaded = false;
-                    this.userLotsInventory.loaded = false;
-                    this.userSellInventory.loaded = false;
                 }
                 this.currentPage.currentUrl = window.location.origin + window.location.pathname;
                 this.setMediaQueries();
@@ -927,7 +958,7 @@ window.addEventListener('message', function(e) {
                 const { responseText, responseURL, url = new URL(responseURL), searchParams = new URLSearchParams(url.search) } = this;
                 const { error, items } = responseJson = isJson(responseText) ? JSON.parse(responseText) : [];
                 if (error || !responseJson || !url.hostname.includes(window.location.hostname)) return;
-                const { id, type, createdFrom, offset } = [...searchParams.entries()].reduce((acc, [key, value]) => {
+                const { id, type, createdFrom, offset, limit } = [...searchParams.entries()].reduce((acc, [key, value]) => {
                     acc[key] = isJson(value) ? JSON.parse(value) : value;
                     return acc;
                 }, {});
@@ -956,7 +987,7 @@ window.addEventListener('message', function(e) {
                         const method_lots = createdFrom ? 'add' : 'set';
                         const { lotsInventoryName, lotsInventoryItems } = lotsInventory[requestKey];
                         extension[lotsInventoryName][method_lots](responseJson);
-                        extension[lotsInventoryName].assignmentItems(lotsInventoryItems);
+                        extension[lotsInventoryName].assignmentItems(lotsInventoryItems, { limit, offset });
                         extension[lotsInventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins });
                         break;
                     case '730':
@@ -965,11 +996,10 @@ window.addEventListener('message', function(e) {
                             "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="user-listing"] [class*="list_large"] > div`)] },
                             "load_sell_inventory": { inventoryName: 'userSellInventory', inventoryItems: [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)] },
                         }
-                        const method = offset === 0 ? 'set' : 'update';
                         const inventoryType = url.pathname.split('/').at(-2);
                         const { inventoryName, inventoryItems } = loadInventory[inventoryType];
-                        extension[inventoryName][method](items);
-                        extension[inventoryName].assignmentItems(inventoryItems);
+                        extension[inventoryName].setWithOffset(items, offset);
+                        extension[inventoryName].assignmentItems(inventoryItems, { limit, offset });
                         extension[inventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
                         break;
                     default:

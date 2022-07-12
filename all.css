@@ -254,8 +254,8 @@
     background-color: rgb(17 17 17) !important;
     border-color: red !important;
 }
-[class^="styles_sell_page"] .limitedSkins [class^="styles_background"],
-[class^="styles_sell_page"] .limitedSkins [class^="styles_sale_back"],
+[class*="styles_sell_page"] .limitedSkins [class^="styles_background"],
+[class*="styles_sell_page"] .limitedSkins [class^="styles_sale_back"],
 .limitedSkins [class^="actioncard_card_"],
 .popularSkins [class^="actioncard_card_"]{
     background-color: rgb(17 17 17) !important;
