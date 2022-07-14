@@ -802,7 +802,6 @@ window.addEventListener('message', function(e) {
                             if (mutation.type === 'childList') {
                                 if (contextMenu.querySelector('[class^="Popper_safe_zone"]')) {
                                     this.contextMenu.selectedItem = this.getContextItem();
-                                    console.log(this.contextMenu);
                                     this.improveContextMenu();
                                 } else {
                                     this.botInventory.contextItem = null;
@@ -820,47 +819,68 @@ window.addEventListener('message', function(e) {
             getContextItem(){
                 return this.botInventory.contextItem || this.userInventory.contextItem || this.botLotsInventory.contextItem || this.userLotsInventory.contextItem || this.userSellInventory.contextItem;
             }
-            improveContextMenu() {
-                const contextMenu = document.querySelector('#portal [class^="Popper_safe_zone"] [class^="LinksSection_links_section"]');
-                contextMenu.insertAdjacentHTML('afterEnd', `
-                    <section class="LinksSection_links_section__3zrV3">
-                        <div class="csm_ui__wrapper__67dba">
-                            <a href="https://old.cs.money/market_sales?appid=730&name_id=${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
-                                <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (old)</span>
-                                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
-                                    <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
-                                    <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
-                                </svg>
-                            </a>
-                        </div>
-                        <div class="csm_ui__wrapper__67dba">
-                            <a href="https://csm.auction/sales${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
-                                <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (new)</span>
-                                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
-                                    <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
-                                    <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
-                                </svg>
-                            </a>
-                        </div>
-                    </section>`);
+            async improveContextMenu() {
+                const contextMenu = document.querySelector('#portal [class^="Popper_safe_zone"]');
+                try {
+                    contextMenu.querySelector('[class^="LinksSection_links_section"]').insertAdjacentHTML('afterEnd', `
+                        <section class="LinksSection_links_section__3zrV3">
+                            <div class="csm_ui__wrapper__67dba">
+                                <a href="https://old.cs.money/market_sales?appid=730&name_id=${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
+                                    <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (old)</span>
+                                    <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
+                                        <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
+                                        <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div class="csm_ui__wrapper__67dba">
+                                <a href="https://csm.auction/sales${this.contextMenu.selectedItem.nameId}" rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
+                                    <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">Sales Info (new)</span>
+                                    <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
+                                        <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
+                                        <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </section>`);
+                } catch (error) {
+                    console.log(this.contextMenu.selectedItem);
+                }
 
-                // <section class="PropertiesSection_properties_section__bkXG7 PropertiesSection_with_marging__3xGj4">
-                //     <div class="SkinProperty_skin_property__1uxJR">
-                //         <span class="csm_ui__text__6542e csm_ui__body_14_regular__6542e Text_gray__3sMSI">sales Info</span>
-                //         <span class="csm_ui__text__6542e csm_ui__body_14_regular__6542e Text_white__1iLl1">Link</span>
-                //     </div>
-                // </section>
-                // <section class="LinksSection_links_section__3zrV3">
-                //     <div class="csm_ui__wrapper__67dba">
-                //         <a rel="noopener noreferrer" target="_blank" tabindex="0" class="csm_ui__text_button__67dba csm_ui__secondary__67dba">
-                //             <span class="csm_ui__text__6542e csm_ui__label_11_medium__6542e">screenshot</span>
-                //             <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" class="csm_ui__size_12__2e8eb" aria-label="arrow diagonal">
-                //                 <path d="M5.146 15.206l-.353-.353a.5.5 0 010-.707l6.71-6.71.102-.101h1.06v1.06l-.101.102-6.71 6.71a.5.5 0 01-.708 0z"></path>
-                //                 <path d="M7.171 5.343v-.5a.5.5 0 01.5-.5h7.486a.5.5 0 01.5.5v7.487a.5.5 0 01-.5.5h-.5a.5.5 0 01-.5-.5V5.843H7.67a.5.5 0 01-.5-.5z"></path>
-                //             </svg>
-                //         </a>
-                //     </div>
-                // </section>
+                let sales_html = document.createElement('div');
+                sales_html.classList.add('item__sales');
+                sales_html.innerHTML = `
+                    <div class="styles_wrapper__3Mukf">
+                        <div class="styles_content__3id0p">
+                            <div class="styles_icon__3UorY">
+                                <div class="styles_loader__1PAI3"></div>
+                            </div>
+                            <div class="styles_title__1vfCM">Start processing</div>
+                            <div class="styles_description__3hwVb">Please, wait...</div>
+                        </div>
+                    </div>`;
+                contextMenu.querySelector('aside').insertAdjacentElement('beforeEnd', sales_html);
+
+                if (!this.contextMenu.selectedItem.sales) {
+                    console.log(this.contextMenu.selectedItem)
+                    this.contextMenu.selectedItem.sales = await this.backgroundRequest('getSales', {
+                        name_id: String(this.contextMenu.selectedItem.nameId),
+                        search_float: String(this.contextMenu.selectedItem.float).slice(0, 12),
+                        limit: 15
+                    });
+                }
+                sales_html.innerHTML = '';
+                for (let sale of this.contextMenu.selectedItem.sales) {
+                    sales_html.innerHTML += `
+                        <div class="item__sale ${sale.similar_sale ? 'similar_sale' : ''}">
+                            <div class="item__sale-date">
+                                ${new Date(sale.update_time * 1000).toISOString().slice(0, 10)}
+                            </div>
+                            <div class="item__sale-info">
+                                ${String(sale.floatvalue).slice(0, 12)} → ${sale.custom_price}$
+                            </div>
+                        </div>`;
+                }
             }
             async backgroundRequest(target, options = []) {
                 window.postMessage({ target, options, csMoneyHelperExtensionID: localStorage.csMoneyHelperExtensionID }, '*');

@@ -1,5 +1,5 @@
 .env
 
 dist/
-extention server/*
-extention server/
+server/*
+server/

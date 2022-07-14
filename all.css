@@ -260,3 +260,41 @@
 .popularSkins [class^="actioncard_card_"]{
     background-color: rgb(17 17 17) !important;
 }
+
+[class^="Popper_safe_zone"] > aside {
+    border-radius: 4px 0 0 4px;
+    position: relative;
+}
+
+.item__sales {
+    position: absolute;
+    width: 180px;
+    right: -180px;
+    background-color: #2D2D33;
+    text-align: center;
+    font-size: 11px;
+    top: 0;
+}
+.item__sales > .styles_wrapper__3Mukf{
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+.item__sales .styles_title__1vfCM{
+    font-size:14px;
+}
+.item__sales .styles_description__3hwVb{
+    font-size:11px;
+}
+.item__sales .styles_loader__1PAI3{
+    width: 25px;
+    height: 25px;
+}
+.item__sales > *:last-child{
+    margin-bottom: 10px;
+}
+.item__sale {
+    padding: 10px 0;
+}
+.item__sale.similar_sale{
+    background: rgb(83 76 127);
+}
