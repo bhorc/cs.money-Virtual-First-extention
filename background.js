@@ -1,14 +1,14 @@
 let domain = 'csmoneypopularapi.herokuapp.com';
-// (async () => {
-//     let popularSkins     = await fetch(`https://${domain}/popular-skins`).then(res => res.json());
-//     let hiddenSkins      = await fetch(`https://${domain}/hiddenSkins`).then(res => res.json());
-//     let limitedSkinsData = await fetch(`https://${domain}/limitedSkinsData`).then(res => res.json());
-//     let skinsBaseList    = await fetch(`https://${domain}/loadSkinsBaseList`).then(res => res.json());
-//     if (popularSkins) localStorage.setItem('popularSkins', JSON.stringify(popularSkins));
-//     if (hiddenSkins) localStorage.setItem('hiddenSkins', JSON.stringify(hiddenSkins));
-//     if (limitedSkinsData) localStorage.setItem('limitedSkinsData', JSON.stringify(limitedSkinsData));
-//     if (skinsBaseList) localStorage.setItem('loadSkinsBaseList', JSON.stringify(skinsBaseList));
-// })();
+(async () => {
+    let popularSkins     = await fetch(`https://${domain}/popular-skins`).then(res => res.json());
+    let hiddenSkins      = await fetch(`https://${domain}/hiddenSkins`).then(res => res.json());
+    let limitedSkinsData = await fetch(`https://${domain}/limitedSkinsData`).then(res => res.json());
+    let skinsBaseList    = await fetch(`https://${domain}/loadSkinsBaseList`).then(res => res.json());
+    if (popularSkins) localStorage.setItem('popularSkins', JSON.stringify(popularSkins));
+    if (hiddenSkins) localStorage.setItem('hiddenSkins', JSON.stringify(hiddenSkins));
+    if (limitedSkinsData) localStorage.setItem('limitedSkinsData', JSON.stringify(limitedSkinsData));
+    if (skinsBaseList) localStorage.setItem('loadSkinsBaseList', JSON.stringify(skinsBaseList));
+})();
 
 const socket = io(`ws://${domain}`);
 chrome.runtime.onMessage.addListener(({ target, options }, sender, sendResponse) => {
