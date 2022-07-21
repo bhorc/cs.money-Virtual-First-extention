@@ -127,11 +127,19 @@ window.addEventListener('message', function(e) {
             }
             add(items){
                 this.loaded = true;
-                this.inventory = [...new Set([...this.inventory, ...items])];
+                if (isIterable(items)) {
+                    this.inventory = [...new Set([...this.inventory, ...items])];
+                } else {
+                    this.inventory.push(items);
+                }
             }
             unshift(items){
                 this.loaded = true;
-                this.inventory = [...new Set([...items, ...this.inventory])];
+                if (isIterable(items)) {
+                    this.inventory = [...new Set([...items, ...this.inventory])];
+                } else {
+                    this.inventory.unshift(items);
+                }
             }
             upgrade(items){
                 if (!this.inventory){
@@ -158,7 +166,10 @@ window.addEventListener('message', function(e) {
             remove(index){
                 this.inventory.splice(index, 1);
             }
-            get(){
+            get(id = null){
+                if (id) {
+                    return this.inventory.find(item => item.assetId === id);
+                }
                 return this.inventory;
             }
             load(url) {
@@ -317,6 +328,9 @@ window.addEventListener('message', function(e) {
                         index--;
                     }
                 }
+            }
+            transport(id){
+                this.inventory.find(item => item.assetId === id);
             }
         }
         class Extension {
@@ -1036,15 +1050,21 @@ window.addEventListener('message', function(e) {
                         break;
                     case '730':
                         const loadInventory = {
-                            "load_bots_inventory": { inventoryName: 'botInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="bot-listing"] [class*="list_large"] > div`)] },
-                            "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="user-listing"] [class*="list_large"] > div`)] },
-                            "load_sell_inventory": { inventoryName: 'userSellInventory', inventoryItems: [...document.querySelectorAll(`[class*="styles_sell_page__"] > div`)] },
+                            "load_bots_inventory": { inventoryName: 'botInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="bot-listing"] [class*="list_large"] > div:not([role])`)] },
+                            "load_user_inventory": { inventoryName: 'userInventory', inventoryItems: [...document.querySelectorAll(`[data-onboarding="user-listing"] [class*="list_large"] > div:not([role])`)] },
+                            "load_sell_inventory": { inventoryName: 'userSellInventory', inventoryItems: [...document.querySelectorAll(`[class*="styles_sell_page__"] > div:not([role])`)] },
                         }
                         const inventoryType = url.pathname.split('/').at(-2);
                         const { inventoryName, inventoryItems } = loadInventory[inventoryType];
                         extension[inventoryName].setWithOffset(items, offset);
                         extension[inventoryName].assignmentItems(inventoryItems, { limit, offset });
                         extension[inventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
+                        break;
+                    case 'make-bet':
+                        let transportItem = extension.botLotsInventory.get(postParams.item.id);
+                        if (transportItem) {
+                            extension.userLotsInventory.add(transportItem);
+                        }
                         break;
                     case 'active-offers':
                         extension.botLotsInventory.update();
