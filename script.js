@@ -144,18 +144,19 @@ window.addEventListener('message', function(e) {
                 this.loaded = true;
                 this.inventory = data;
             }
-            setWithOffset(items, offset){
-                if (!this.get().length) {
-                    this.set(items);
+            setWithOffset(data, offset){
+                if (offset === 0) {
+                    this.set(data);
                 } else {
-                    for (let [index, item] of Object.entries(items)) {
-                        this.inventory[Number(index) + Number(offset)] = item;
-                    }
+                    this.add(data);
                 }
             }
             clear(){
                 this.loaded = false;
                 this.inventory = [];
+            }
+            remove(index){
+                this.inventory.splice(index, 1);
             }
             get(){
                 return this.inventory;
@@ -232,22 +233,6 @@ window.addEventListener('message', function(e) {
                 }
             }
         }
-        class sellInventory extends customInventory {
-            constructor() {
-                super();
-                this.pageOffset = 0;
-            }
-            assignmentItems(html_items, { limit, offset }) {
-                let to = offset + limit - this.pageOffset > 0 ? offset + limit : offset + limit * 2;
-                let from = to - html_items.length;
-                console.log(from, to, offset + limit - this.pageOffset);
-                this.pageOffset = offset;
-                for (let index = 0; index < html_items.length; index++) {
-                    let key = index + from;
-                    this.inventory[key].element = html_items[index];
-                }
-            }
-        }
         class pendingInventory extends customInventory {
             constructor() {
                 super();
@@ -295,14 +280,53 @@ window.addEventListener('message', function(e) {
                 this.get();
             }
         }
+        class sellInventory extends customInventory {
+            constructor() {
+                super();
+                this.pageOffset = 0;
+            }
+            assignmentItems(html_items, { limit, offset }) {
+                let to = offset + limit - this.pageOffset > 0 ? offset + limit : offset + limit * 2;
+                let from = to - html_items.length;
+                console.log(from, to, offset + limit - this.pageOffset);
+                this.pageOffset = offset;
+                for (let index = 0; index < html_items.length; index++) {
+                    let key = index + from;
+                    this.inventory[key].element = html_items[index];
+                }
+            }
+            setWithOffset(items, offset){
+                if (!this.get().length) {
+                    this.inventory = data;
+                } else {
+                    for (let [index, item] of Object.entries(items)) {
+                        this.inventory[Number(index) + Number(offset)] = item;
+                    }
+                }
+                this.loaded = true;
+            }
+        }
+        class lotsInventory extends customInventory {
+            constructor() {
+                super();
+            }
+            update(){
+                for (let index = 0; index < this.inventory.length; index++){
+                    if (!document.body.contains(this.inventory[index].element)) {
+                        this.remove(index);
+                        index--;
+                    }
+                }
+            }
+        }
         class Extension {
             constructor() {
                 this.botOfferInventory = new offerInventory();
                 this.userOfferInventory = new offerInventory();
                 this.botInventory = new customInventory();
                 this.userInventory = new customInventory();
-                this.botLotsInventory = new customInventory();
-                this.userLotsInventory = new customInventory();
+                this.botLotsInventory = new lotsInventory();
+                this.userLotsInventory = new lotsInventory();
                 this.userSellInventory = new sellInventory();
                 this.pendingOffersInventory = new pendingInventory();
                 this.requestMap = new Map();
@@ -1021,6 +1045,10 @@ window.addEventListener('message', function(e) {
                         extension[inventoryName].setWithOffset(items, offset);
                         extension[inventoryName].assignmentItems(inventoryItems, { limit, offset });
                         extension[inventoryName].highlight('limitedSkins', { limitedSkins: extension.limitedSkins, skinsBaseList: extension.skinsBaseList });
+                        break;
+                    case 'active-offers':
+                        extension.botLotsInventory.update();
+                        extension.userLotsInventory.update();
                         break;
                     default:
                         break;
